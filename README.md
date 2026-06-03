@@ -20,11 +20,14 @@ LunaFlow helps users:
 ---
 
 ## 🏗️ Architecture
+
+```
 React Frontend (Tailwind CSS)
-↕ HTTP/REST
+        ↕ HTTP/REST
 FastAPI Backend (Python)
-↕ SQLAlchemy ORM
+        ↕ SQLAlchemy ORM
 PostgreSQL Database
+```
 
 **Why this stack?**
 - **FastAPI** — chosen for automatic OpenAPI docs, Pydantic validation, 
@@ -36,6 +39,8 @@ PostgreSQL Database
 ---
 
 ## 📁 Project Structure
+
+```
 lunaflow/
 ├── backend/
 │   ├── app/
@@ -46,6 +51,7 @@ lunaflow/
 │   │   └── crud.py          # Database operations
 │   └── requirements.txt
 └── frontend/                # React app (in progress)
+```
 
 ---
 
