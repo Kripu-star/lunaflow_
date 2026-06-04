@@ -57,7 +57,7 @@ lunaflow/
 
 ## 🚀 Current Status
 
-### ✅ Phase 1 — In Progress
+### ✅ Phase 1 — Completed
 - [x] FastAPI backend skeleton with `/health` endpoint
 - [x] PostgreSQL connection with SQLAlchemy (connection pooling, 
       session management)
