@@ -63,3 +63,21 @@ export async function createCycle(startDate, notes) {
 export async function getPrediction() {
   return apiCall("/cycles/prediction");
 }
+export async function getMoods() {
+  return apiCall("/moods");
+}
+
+export async function createMood(moodScore, energyLevel, note) {
+  return apiCall("/moods", {
+    method: "POST",
+    body: JSON.stringify({
+      mood_score: moodScore,
+      energy_level: energyLevel,
+      note,
+    }),
+  });
+}
+
+export async function getMoodStats() {
+  return apiCall("/moods/stats");
+}

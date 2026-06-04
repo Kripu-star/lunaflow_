@@ -6,6 +6,8 @@ from typing import List
 from datetime import timedelta
 from app.models import Cycle
 from app.schemas import CycleCreate
+from app.models import Mood
+from app.schemas import MoodCreate
 
 
 
@@ -84,11 +86,78 @@ def predict_next_cycle(db: Session, user_id: int):
     last_start = cycles[0].start_date
     predicted = last_start + timedelta(days=avg_gap)
 
-    confidence = "high" if len(gaps) >= 3 else "medium"
 
     return {
         "predicted_next_start": predicted,
         "average_cycle_length_days": round(avg_gap, 1),
         "cycles_used_for_prediction": len(gaps),
         "confidence": confidence,
+    }
+
+
+def create_mood(db: Session, mood: MoodCreate, user_id: int):
+    db_mood = Mood(
+        user_id=user_id,
+        mood_score=mood.mood_score,
+        energy_level=mood.energy_level,
+        note=mood.note,
+    )
+    db.add(db_mood)
+    db.commit()
+    db.refresh(db_mood)
+    return db_mood
+
+
+def get_user_moods(db: Session, user_id: int, limit: int = 30):
+    return (
+        db.query(Mood)
+        .filter(Mood.user_id == user_id)
+        .order_by(Mood.logged_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+
+def get_mood_stats(db: Session, user_id: int):
+    moods = (
+        db.query(Mood)
+        .filter(Mood.user_id == user_id)
+        .order_by(Mood.logged_at.desc())
+        .limit(7)
+        .all()
+    )
+
+    if not moods:
+        return {
+            "average_mood": None,
+            "average_energy": None,
+            "total_entries": 0,
+            "recent_trend": "stable",
+        }
+
+    avg_mood = sum(m.mood_score for m in moods) / len(moods)
+    energy_scores = [m.energy_level for m in moods if m.energy_level]
+    avg_energy = sum(energy_scores) / len(energy_scores) if energy_scores else None
+
+    # Trend: compare first half vs second half of recent entries
+    if len(moods) >= 4:
+        mid = len(moods) // 2
+        recent_avg = sum(m.mood_score for m in moods[:mid]) / mid
+        older_avg = sum(m.mood_score for m in moods[mid:]) / (len(moods) - mid)
+        if recent_avg > older_avg + 0.3:
+            trend = "improving"
+        elif recent_avg < older_avg - 0.3:
+            trend = "declining"
+        else:
+            trend = "stable"
+    else:
+        trend = "stable"
+
+    total = db.query(Mood).filter(Mood.user_id == user_id).count()
+
+    return {
+        "average_mood": round(avg_mood, 1),
+        "average_energy": round(avg_energy, 1) if avg_energy else None,
+        "total_entries": total,
+        "recent_trend": trend,
     }

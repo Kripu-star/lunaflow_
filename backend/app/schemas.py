@@ -65,3 +65,29 @@ class CyclePrediction(BaseModel):
     average_cycle_length_days: Optional[float]
     cycles_used_for_prediction: int
     confidence: str  # "low", "medium", "high"
+
+# --- Mood schemas ---
+
+class MoodCreate(BaseModel):
+    mood_score: int  # 1-5
+    energy_level: Optional[int] = None  # 1-5
+    note: Optional[str] = None
+
+
+class MoodResponse(BaseModel):
+    id: int
+    user_id: int
+    mood_score: int
+    energy_level: Optional[int]
+    note: Optional[str]
+    logged_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MoodStats(BaseModel):
+    average_mood: Optional[float]
+    average_energy: Optional[float]
+    total_entries: int
+    recent_trend: str  # "improving", "declining", "stable"

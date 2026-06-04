@@ -9,7 +9,7 @@ from app import crud
 from app.schemas import UserCreate, UserResponse, UserLogin, Token
 from app.auth import verify_password, create_access_token, get_current_user
 from typing import List
-from app.schemas import CycleCreate, CycleResponse, CyclePrediction
+from app.schemas import CycleCreate, CycleResponse, CyclePrediction, MoodCreate, MoodResponse, MoodStats
 
 # Create all tables in the database on startup
 models.Base.metadata.create_all(bind=engine)
@@ -49,7 +49,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 @app.post("/auth/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
+    if not db_user or not verify_password(user.password, str(db_user.hashed_password)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
@@ -86,3 +86,31 @@ def get_prediction(
     current_user=Depends(get_current_user),
 ):
     return crud.predict_next_cycle(db=db, user_id=current_user.id)
+
+@app.post("/moods", response_model=MoodResponse, status_code=201)
+def log_mood(
+    mood: MoodCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    if not 1 <= mood.mood_score <= 5:
+        raise HTTPException(status_code=400, detail="Mood score must be 1-5")
+    if mood.energy_level and not 1 <= mood.energy_level <= 5:
+        raise HTTPException(status_code=400, detail="Energy level must be 1-5")
+    return crud.create_mood(db=db, mood=mood, user_id=current_user.id)
+
+
+@app.get("/moods", response_model=List[MoodResponse])
+def list_moods(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return crud.get_user_moods(db=db, user_id=current_user.id)
+
+
+@app.get("/moods/stats", response_model=MoodStats)
+def mood_stats(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return crud.get_mood_stats(db=db, user_id=current_user.id)
