@@ -13,7 +13,7 @@
 LunaFlow helps users:
 - **Log menstrual cycles** and track patterns over time
 - **Predict next period dates** using cycle history analysis
-- **Journal moods** with AI-powered emotion detection (Phase 2)
+- **Journal moods** with AI-powered emotion detection 
 - **Chat with AI companions** — Doctor, Partner, or Parent persona (Phase 2)
 - **Receive personalized recommendations** for food, yoga & schedule (Phase 3)
 
@@ -62,13 +62,13 @@ lunaflow/
 - [x] PostgreSQL connection with SQLAlchemy (connection pooling, 
       session management)
 - [x] Environment-based configuration (12-Factor App principles)
-- [ ] User authentication (JWT)
-- [ ] Period logging endpoints
-- [ ] Cycle prediction algorithm
-- [ ] React frontend
+- [x] User authentication (JWT)
+- [x] Period logging endpoints
+- [x] Cycle prediction algorithm
+- [x] React frontend
 
-### 🔜 Phase 2 — Planned
-- [ ] Mood journaling with HuggingFace emotion detection
+### 🔜 Phase 2 — Under progress
+- [x] Mood journaling with HuggingFace emotion detection
 - [ ] AI companion personas via Claude API
 
 ### 🔜 Phase 3 — Planned
@@ -92,6 +92,17 @@ cp .env.example .env
 
 # Run
 uvicorn app.main:app --reload
+
+#Frontend
+
+cd frontend
+
+#install dependencies
+npm install
+
+#Run the development server
+npm run dev
+
 ```
 
 ---
