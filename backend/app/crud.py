@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from app.models import User
 from app.schemas import UserCreate
 from app.auth import hash_password
-from typing import List
+from typing import List, cast
 from datetime import timedelta
 from app.models import Cycle
 from app.schemas import CycleCreate
@@ -85,7 +85,7 @@ def predict_next_cycle(db: Session, user_id: int):
     avg_gap = sum(gaps) / len(gaps)
     last_start = cycles[0].start_date
     predicted = last_start + timedelta(days=avg_gap)
-
+    confidence = "high" if len(gaps) >= 3 else "medium"
 
     return {
         "predicted_next_start": predicted,
@@ -135,15 +135,15 @@ def get_mood_stats(db: Session, user_id: int):
             "recent_trend": "stable",
         }
 
-    avg_mood = sum(m.mood_score for m in moods) / len(moods)
-    energy_scores = [m.energy_level for m in moods if m.energy_level]
+    avg_mood = sum(float(cast(int, m.mood_score)) for m in moods) / len(moods)
+    energy_scores = [float(cast(int, m.energy_level)) for m in moods if m.energy_level is not None]
     avg_energy = sum(energy_scores) / len(energy_scores) if energy_scores else None
 
     # Trend: compare first half vs second half of recent entries
     if len(moods) >= 4:
         mid = len(moods) // 2
-        recent_avg = sum(m.mood_score for m in moods[:mid]) / mid
-        older_avg = sum(m.mood_score for m in moods[mid:]) / (len(moods) - mid)
+        recent_avg = sum(float(cast(int, m.mood_score)) for m in moods[:mid]) / mid
+        older_avg = sum(float(cast(int, m.mood_score)) for m in moods[mid:]) / (len(moods) - mid)
         if recent_avg > older_avg + 0.3:
             trend = "improving"
         elif recent_avg < older_avg - 0.3:
