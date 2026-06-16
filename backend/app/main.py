@@ -13,6 +13,7 @@ from app.schemas import CycleCreate, CycleResponse, CyclePrediction, MoodCreate,
 import os
 # Create all tables in the database on startup
 models.Base.metadata.create_all(bind=engine)
+engine.dispose()
 
 app = FastAPI(title="LunaFlow API")
 
