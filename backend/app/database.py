@@ -13,7 +13,7 @@ if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not set. Check your .env file.")
 
 # The Engine: app-wide connection pool manager
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True, pool_recycle=300)
 
 # SessionLocal: a factory. Calling SessionLocal() gives a new session.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
