@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://lunaflow-api-28mh.onrender.com";
 
 export async function apiCall(endpoint, options = {}) {
   const token = localStorage.getItem("token");
