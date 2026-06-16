@@ -19,18 +19,11 @@ app = FastAPI(title="LunaFlow API")
 # CORS — allows React frontend to talk to this backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://lunaflow-omega.vercel.app",
-        os.getenv("FRONTEND_URL", "http://localhost:5173"),
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_origin_regex="https://lunaflow-.*\\.vercel\\.app",
 )
-
-@app.get("/health")
 def health_check(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
