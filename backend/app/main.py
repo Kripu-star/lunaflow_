@@ -29,12 +29,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/") # <--- ADD THIS EXACT LINE RIGHT HERE
 def health_check(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         raise HTTPException(status_code=503, detail=str(e))
+
 
 
 @app.post("/auth/register", response_model=UserResponse, status_code=201)
