@@ -10,7 +10,7 @@ from app.schemas import UserCreate, UserResponse, UserLogin, Token
 from app.auth import verify_password, create_access_token, get_current_user
 from typing import List
 from app.schemas import CycleCreate, CycleResponse, CyclePrediction, MoodCreate, MoodResponse, MoodStats
-
+import os
 # Create all tables in the database on startup
 models.Base.metadata.create_all(bind=engine)
 
@@ -19,7 +19,10 @@ app = FastAPI(title="LunaFlow API")
 # CORS — allows React frontend to talk to this backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite's default port
+    allow_origins=[
+        "http://localhost:5173",
+        os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
