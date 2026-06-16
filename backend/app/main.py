@@ -17,10 +17,15 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="LunaFlow API")
 
 # CORS — allows React frontend to talk to this backend
+# Update your CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=[
+        "https://lunaflow-omega.vercel.app", # Your production frontend
+        "http://localhost:3000",             # Standard React local dev
+        "http://localhost:5173",             # Standard Vite local dev
+    ],
+    allow_credentials=True,                  # Changed from False to True
     allow_methods=["*"],
     allow_headers=["*"],
 )
