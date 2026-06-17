@@ -132,6 +132,12 @@ export default function Dashboard() {
               Hi, {user?.full_name || user?.email}
             </span>
             <button
+              onClick={() => navigate("/chat")}
+              className="text-sm bg-purple-600 text-white px-3 py-1 rounded-full hover:bg-purple-700 transition"
+            >
+              💬 AI Companion
+            </button>
+            <button
               onClick={handleLogout}
               className="text-sm text-red-500 hover:underline"
             >

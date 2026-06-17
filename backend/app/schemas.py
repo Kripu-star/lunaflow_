@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 
 
@@ -91,3 +91,20 @@ class MoodStats(BaseModel):
     average_energy: Optional[float]
     total_entries: int
     recent_trend: str  # "improving", "declining", "stable"
+
+# --- Chat schemas ---
+
+class ChatMessage(BaseModel):
+    role: str  # "user" or "model"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    persona: str  # "doctor", "parent", "partner"
+    message: str
+    history: List[ChatMessage] = []
+
+
+class ChatResponse(BaseModel):
+    response: str
+    persona: str

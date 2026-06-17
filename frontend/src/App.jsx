@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Chats from "./pages/Chats";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -14,6 +15,7 @@ export default function App() {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+
         <Route
           path="/"
           element={
@@ -21,7 +23,16 @@ export default function App() {
               <Dashboard />
             </ProtectedRoute>
           }
+
         />
+        <Route
+  path="/chat"
+  element={
+    <ProtectedRoute>
+      <Chats />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

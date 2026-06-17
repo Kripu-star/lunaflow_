@@ -10,6 +10,8 @@ from app.schemas import UserCreate, UserResponse, UserLogin, Token
 from app.auth import verify_password, create_access_token, get_current_user
 from typing import List
 from app.schemas import CycleCreate, CycleResponse, CyclePrediction, MoodCreate, MoodResponse, MoodStats
+from app.chat import chat_with_gemini
+from app.schemas import ChatRequest, ChatResponse
 import os
 # Create all tables in the database on startup
 models.Base.metadata.create_all(bind=engine)
@@ -119,3 +121,25 @@ def mood_stats(
     current_user=Depends(get_current_user),
 ):
     return crud.get_mood_stats(db=db, user_id=current_user.id)
+
+@app.post("/chat", response_model=ChatResponse)
+def chat(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    if request.persona not in ["doctor", "parent", "partner"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Persona must be 'doctor', 'parent', or 'partner'"
+        )
+
+    response_text = chat_with_gemini(
+        persona=request.persona,
+        message=request.message,
+        history=[msg.model_dump() for msg in request.history],
+        user=current_user,
+        db=db,
+    )
+
+    return {"response": response_text, "persona": request.persona}
