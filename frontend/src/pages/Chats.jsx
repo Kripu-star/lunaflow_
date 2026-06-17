@@ -58,21 +58,34 @@ export default function Chat() {
   const [persona, setPersona] = useState(
     searchParams.get("persona") || "doctor"
   );
-  const [messages, setMessages] = useState([]);
+  const [allMessages, setAllMessages] = useState(() => {
+  const saved = localStorage.getItem("luna_chat_history");
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      // corrupted data, start fresh
+    }
+  }
+  return {
+    doctor: [{ role: "model", content: PERSONAS.doctor.greeting }],
+    parent: [{ role: "model", content: PERSONAS.parent.greeting }],
+    partner: [{ role: "model", content: PERSONAS.partner.greeting }],
+  };
+});
+useEffect(() => {
+  localStorage.setItem("luna_chat_history", JSON.stringify(allMessages));
+}, [allMessages]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Load greeting when persona changes
-    const greeting = PERSONAS[persona].greeting;
-    setMessages([{ role: "model", content: greeting }]);
-  }, [persona]);
+  
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, allMessages[persona]);
 
   async function sendMessage(e) {
     e.preventDefault();
@@ -82,8 +95,9 @@ export default function Chat() {
     setInput("");
 
     // Add user message immediately
-    const updatedMessages = [...messages, { role: "user", content: userMessage }];
-    setMessages(updatedMessages);
+    const currentMessages = allMessages[persona];
+    const updatedMessages = [...currentMessages, { role: "user", content: userMessage }];
+    setAllMessages(prev => ({ ...prev, [persona]: updatedMessages }));
     setLoading(true);
 
     try {
@@ -98,24 +112,36 @@ export default function Chat() {
 
       if (res && res.ok) {
         const data = await res.json();
-        setMessages([...updatedMessages, { role: "model", content: data.response }]);
+        setAllMessages(prev => ({
+  ...prev,
+  [persona]: [...updatedMessages, { role: "model", content: data.response }]
+}));
       } else if (!res) {
         navigate("/login");
       } else {
-        setMessages([
-          ...updatedMessages,
-          { role: "model", content: "Sorry, something went wrong. Please try again." },
-        ]);
+        setAllMessages(prev => ({
+  ...prev,
+  [persona]: [...updatedMessages, { role: "model", content: "Sorry, something went wrong. Please try again." }]
+}));
       }
     } catch {
-      setMessages([
-        ...updatedMessages,
-        { role: "model", content: "Network error. Please check your connection." },
-      ]);
+      setAllMessages(prev => ({
+  ...prev,
+  [persona]: [...updatedMessages, { role: "model", content: "Sorry, something went wrong. Please try again." }]
+}));
     } finally {
       setLoading(false);
     }
   }
+ function clearHistory() {
+  const fresh = {
+    doctor: [{ role: "model", content: PERSONAS.doctor.greeting }],
+    parent: [{ role: "model", content: PERSONAS.parent.greeting }],
+    partner: [{ role: "model", content: PERSONAS.partner.greeting }],
+  };
+  setAllMessages(fresh);
+  localStorage.removeItem("luna_chat_history");
+}
 
   function switchPersona(newPersona) {
     setPersona(newPersona);
@@ -136,6 +162,12 @@ export default function Chat() {
           >
             ← Back
           </button>
+          <button
+  onClick={clearHistory}
+  className="text-xs text-gray-400 hover:text-red-400 transition"
+>
+  Clear history
+</button>
           <h1 className="font-bold text-gray-800">
             {currentPersona.emoji} {currentPersona.name}
           </h1>
@@ -167,7 +199,7 @@ export default function Chat() {
       {/* Messages */}
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 overflow-y-auto pb-4">
         <div className="space-y-3">
-          {messages.map((msg, i) => (
+          {allMessages[persona].map((msg, i) => (
             <div
               key={i}
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -233,3 +265,5 @@ export default function Chat() {
     </div>
   );
 }
+
+

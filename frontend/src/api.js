@@ -53,10 +53,14 @@ export async function getCycles() {
   return apiCall("/cycles");
 }
 
-export async function createCycle(startDate, notes) {
+export async function createCycle(startDate, notes, periodLengthDays) {
   return apiCall("/cycles", {
     method: "POST",
-    body: JSON.stringify({ start_date: startDate, notes }),
+    body: JSON.stringify({
+      start_date: startDate,
+      notes,
+      period_length_days: periodLengthDays,
+    }),
   });
 }
 
@@ -80,4 +84,7 @@ export async function createMood(moodScore, energyLevel, note) {
 
 export async function getMoodStats() {
   return apiCall("/moods/stats");
+}
+export async function getCyclePhase() {
+  return apiCall("/cycles/phase");
 }

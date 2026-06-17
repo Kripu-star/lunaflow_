@@ -45,6 +45,7 @@ class TokenData(BaseModel):
 class CycleCreate(BaseModel):
     start_date: datetime
     end_date: Optional[datetime] = None
+    period_length_days: Optional[int] = None
     notes: Optional[str] = None
 
 
@@ -53,6 +54,7 @@ class CycleResponse(BaseModel):
     user_id: int
     start_date: datetime
     end_date: Optional[datetime]
+    period_length_days: Optional[int]
     notes: Optional[str]
     created_at: datetime
 
@@ -108,3 +110,24 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     persona: str
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    typical_cycle_length: Optional[int] = None
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    full_name: Optional[str]
+    typical_cycle_length: Optional[int]
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class CyclePhase(BaseModel):
+    phase: str
+    day_of_cycle: Optional[int]
+    description: str
+    emoji: str
+    tips: List[str]

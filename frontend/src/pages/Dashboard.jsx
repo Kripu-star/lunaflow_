@@ -9,6 +9,7 @@ import {
   createMood,
   getMoodStats,
 } from "../api";
+import { getCyclePhase } from "../api";
 
 const MOOD_EMOJIS = ["😢", "😟", "😐", "😊", "😁"];
 const ENERGY_EMOJIS = ["🪫", "😴", "⚡", "🔥", "💥"];
@@ -29,6 +30,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("cycles");
   const navigate = useNavigate();
+  const [periodLength, setPeriodLength] = useState("");
+  const [cyclePhase, setCyclePhase] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -36,13 +39,14 @@ export default function Dashboard() {
 
   async function loadData() {
     try {
-      const [userRes, cyclesRes, predRes, moodsRes, statsRes] =
+      const [userRes, cyclesRes, predRes, moodsRes, statsRes, phaseRes] =
         await Promise.all([
           getMe(),
           getCycles(),
           getPrediction(),
           getMoods(),
           getMoodStats(),
+          getCyclePhase(),
         ]);
 
       if (!userRes || !userRes.ok) {
@@ -55,6 +59,7 @@ export default function Dashboard() {
       setPrediction(await predRes.json());
       setMoods(await moodsRes.json());
       setMoodStats(await statsRes.json());
+      if (phaseRes && phaseRes.ok) setCyclePhase(await phaseRes.json());
     } catch {
       navigate("/login");
     } finally {
@@ -63,15 +68,23 @@ export default function Dashboard() {
   }
 
   async function handleLogCycle(e) {
-    e.preventDefault();
-    const res = await createCycle(new Date(startDate).toISOString(), cycleNotes);
-    if (res.ok) {
-      setShowCycleForm(false);
-      setStartDate("");
-      setCycleNotes("");
-      loadData();
-    }
+  e.preventDefault();
+  const res = await createCycle(
+    new Date(startDate).toISOString(),
+    cycleNotes,
+    periodLength || null
+  );
+  if (res && res.ok) {
+    setShowCycleForm(false);
+    setStartDate("");
+    setCycleNotes("");
+    setPeriodLength("");
+    loadData();
+  } else if (res) {
+    const data = await res.json();
+    alert(data.detail || "Could not log cycle");
   }
+}
 
   async function handleLogMood(e) {
     e.preventDefault();
@@ -221,7 +234,45 @@ export default function Dashboard() {
               <p className="text-gray-400">No moods logged yet</p>
             )}
           </div>
+          {/* Cycle Phase Card */}
+{cyclePhase && cyclePhase.phase !== "unknown" && (
+  <div className="bg-white rounded-2xl shadow-md p-6 border-l-4 border-pink-400 md:col-span-2">
+    <div className="flex justify-between items-start">
+      <div className="flex-1">
+        <h2 className="text-sm font-semibold text-pink-600 uppercase tracking-wide mb-1">
+          Current Phase
+        </h2>
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-3xl">{cyclePhase.emoji}</span>
+          <div>
+            <p className="text-xl font-bold text-gray-800">
+              {cyclePhase.phase}
+            </p>
+            <p className="text-sm text-gray-500">
+              Day {cyclePhase.day_of_cycle} of your cycle
+            </p>
+          </div>
         </div>
+        <p className="text-sm text-gray-600 mb-3">
+          {cyclePhase.description}
+        </p>
+        {cyclePhase.tips.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {cyclePhase.tips.map((tip, i) => (
+              <span
+                key={i}
+                className="text-xs bg-pink-50 text-pink-700 px-2 py-1 rounded-full"
+              >
+                {tip}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+    </div>
 
         {/* Tab Switcher */}
         <div className="flex gap-2">
@@ -271,6 +322,24 @@ export default function Dashboard() {
                     onChange={(e) => setStartDate(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none"
                   />
+                 <p className="text-xs text-gray-400 mt-1">
+                  One cycle per day maximum. Cycles should be at least 15 days apart.
+                </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    How many days did it last?
+                  </label>
+                  <select
+                    value={periodLength}
+                    onChange={(e) => setPeriodLength(Number(e.target.value))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 outline-none"
+                  >
+                    <option value="">Not sure yet</option>
+                    {[2,3,4,5,6,7,8].map(d => (
+                      <option key={d} value={d}>{d} days</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

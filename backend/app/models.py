@@ -12,6 +12,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, nullable=True)
+    typical_cycle_length = Column(Integer, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     cycles = relationship("Cycle", back_populates="user", cascade="all, delete-orphan")
@@ -24,6 +25,7 @@ class Cycle(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=True)
+    period_length_days = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

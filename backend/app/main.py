@@ -12,6 +12,7 @@ from typing import List
 from app.schemas import CycleCreate, CycleResponse, CyclePrediction, MoodCreate, MoodResponse, MoodStats
 from app.chat import chat_with_gemini
 from app.schemas import ChatRequest, ChatResponse
+from app.schemas import UserUpdate
 import os
 # Create all tables in the database on startup
 models.Base.metadata.create_all(bind=engine)
@@ -76,7 +77,10 @@ def log_cycle(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return crud.create_cycle(db=db, cycle=cycle, user_id=current_user.id)
+    try:
+        return crud.create_cycle(db=db, cycle=cycle, user_id=current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.get("/cycles", response_model=List[CycleResponse])
@@ -143,3 +147,24 @@ def chat(
     )
 
     return {"response": response_text, "persona": request.persona}
+
+@app.patch("/auth/me", response_model=UserResponse)
+def update_profile(
+    updates: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return crud.update_user(
+        db=db,
+        user_id=current_user.id,
+        updates=updates.model_dump(exclude_none=True)
+    )
+
+from app.schemas import CyclePhase
+
+@app.get("/cycles/phase", response_model=CyclePhase)
+def get_cycle_phase(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return crud.get_current_cycle_phase(db=db, user_id=current_user.id)
