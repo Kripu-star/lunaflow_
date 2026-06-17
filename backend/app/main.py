@@ -30,7 +30,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-@app.get("/") # <--- ADD THIS EXACT LINE RIGHT HERE
+@app.get("/health") 
 def health_check(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))

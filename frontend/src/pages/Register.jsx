@@ -54,7 +54,7 @@ export default function Register() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none"
-              placeholder="Pushpam Kumari"
+              placeholder="Your name"
             />
           </div>
 
