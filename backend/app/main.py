@@ -168,3 +168,14 @@ def get_cycle_phase(
     current_user=Depends(get_current_user),
 ):
     return crud.get_current_cycle_phase(db=db, user_id=current_user.id)
+
+@app.delete("/cycles/{cycle_id}", status_code=204)
+def remove_cycle(
+    cycle_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        crud.delete_cycle(db=db, cycle_id=cycle_id, user_id=current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

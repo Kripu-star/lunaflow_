@@ -21,15 +21,7 @@ class UserLogin(BaseModel):
 
 # --- Response schemas (what we send back) ---
 
-class UserResponse(BaseModel):
-    id: int
-    email: str
-    full_name: Optional[str]
-    is_active: bool
-    created_at: datetime
 
-    class Config:
-        from_attributes = True
 
 
 class Token(BaseModel):

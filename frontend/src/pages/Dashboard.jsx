@@ -8,8 +8,9 @@ import {
   getMoods,
   createMood,
   getMoodStats,
+  getCyclePhase,
+  deleteCycle,
 } from "../api";
-import { getCyclePhase } from "../api";
 
 const MOOD_EMOJIS = ["😢", "😟", "😐", "😊", "😁"];
 const ENERGY_EMOJIS = ["🪫", "😴", "⚡", "🔥", "💥"];
@@ -97,6 +98,13 @@ export default function Dashboard() {
       loadData();
     }
   }
+  async function handleDeleteCycle(cycleId) {
+  if (!window.confirm("Delete this cycle entry?")) return;
+  const res = await deleteCycle(cycleId);
+  if (res && (res.ok || res.status === 204)) {
+    loadData();
+  }
+}
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -394,6 +402,12 @@ export default function Dashboard() {
                           <p className="text-sm text-gray-500">{cycle.notes}</p>
                         )}
                       </div>
+                      <button
+                        onClick={() => handleDeleteCycle(cycle.id)}
+                        className="text-xs text-red-400 hover:text-red-600 transition"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ))}
                 </div>

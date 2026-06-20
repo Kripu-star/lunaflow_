@@ -305,3 +305,5 @@ def get_current_cycle_phase(db: Session, user_id: int):
         "emoji": emoji,
         "tips": tips,
     }
+def delete_cycle(db: Session, cycle_id: int, user_id : int):
+    cycle = db.query(Cycle).filter

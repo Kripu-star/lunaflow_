@@ -88,3 +88,8 @@ export async function getMoodStats() {
 export async function getCyclePhase() {
   return apiCall("/cycles/phase");
 }
+export async function deleteCycle(cycleId) {
+  return apiCall(`/cycles/${cycleId}`, {
+    method: "DELETE",
+  });
+}
