@@ -35,20 +35,45 @@ def create_user(db: Session, user: UserCreate):
     return db_user
 
 def create_cycle(db: Session, cycle: CycleCreate, user_id: int):
-    from sqlalchemy import func
-    from datetime import datetime
+    from datetime import datetime, timedelta
 
     start = cycle.start_date
     if start.tzinfo is not None:
         start = start.replace(tzinfo=None)
 
-    existing = db.query(Cycle).filter(
-        Cycle.user_id == user_id,
-        func.date(Cycle.start_date) == start.date()
-    ).first()
+    period_days = cycle.period_length_days or 5  # assume 5 if not specified
 
-    if existing:
-        raise ValueError(f"A cycle already exists for {start.date()}")
+    # Get all existing cycles for this user
+    existing_cycles = db.query(Cycle).filter(
+        Cycle.user_id == user_id
+    ).all()
+
+    for existing in existing_cycles:
+        ex_start = existing.start_date
+        if ex_start.tzinfo is not None:
+            ex_start = ex_start.replace(tzinfo=None)
+        ex_length = existing.period_length_days or 5
+        ex_end = ex_start + timedelta(days=ex_length)
+
+        new_end = start + timedelta(days=period_days)
+
+        # Check if new cycle overlaps with existing cycle
+        if start.date() <= ex_end.date() and new_end.date() >= ex_start.date():
+            raise ValueError(
+                f"This date overlaps with an existing period ({ex_start.date()} to {ex_end.date()})"
+            )
+
+    # Also check minimum gap — periods shouldn't be less than 15 days apart
+    if existing_cycles:
+        closest = min(
+            existing_cycles,
+            key=lambda c: abs((c.start_date.replace(tzinfo=None) - start).days)
+        )
+        gap = abs((closest.start_date.replace(tzinfo=None) - start).days)
+        if gap < 15 and gap > 0:
+            raise ValueError(
+                f"Too close to existing period on {closest.start_date.date()} ({gap} days apart). Minimum gap is 15 days."
+            )
 
     db_cycle = Cycle(
         user_id=user_id,
@@ -61,6 +86,7 @@ def create_cycle(db: Session, cycle: CycleCreate, user_id: int):
     db.commit()
     db.refresh(db_cycle)
     return db_cycle
+
 
 
 def predict_next_cycle(db: Session, user_id: int):
@@ -306,4 +332,12 @@ def get_current_cycle_phase(db: Session, user_id: int):
         "tips": tips,
     }
 def delete_cycle(db: Session, cycle_id: int, user_id : int):
-    cycle = db.query(Cycle).filter
+    cycle = db.query(Cycle).filter(
+       Cycle.id == cycle_id,
+       Cycle.user_id == user_id
+    ).first()
+    if not cycle:
+        raise ValueError("Cycle not founf")
+    db.delete(cycle)
+    db.commit()
+    return True
