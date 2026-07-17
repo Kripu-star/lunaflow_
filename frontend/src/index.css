@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  background-color: #FAF7F5;
+  color: #261C2C;
+}
+
+*:focus-visible {
+  outline: 2px solid #4A2545;
+  outline-offset: 2px;
+}
+.hero-glow {
+  background: radial-gradient(
+      circle at 50% 0%,
+      rgba(74, 37, 69, 0.10),
+      transparent 65%
+    ),
+    #ffffff;
+}

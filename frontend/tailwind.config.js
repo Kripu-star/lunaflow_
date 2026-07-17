@@ -5,7 +5,33 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        parchment: "#F1E3D8",
+        ink: "#261C2C",
+        aubergine: {
+          light: "#6B3D66",
+          DEFAULT: "#4A2545",
+          dark: "#3A1D38",
+        },
+        mauve: {
+          light: "#A788A7",
+          DEFAULT: "#8B6F8B",
+          dark: "#6F586F",
+        },
+        phase: {
+          menstruation: "#B8493E",
+          follicular: "#6B8F71",
+          ovulation: "#D4A24C",
+          luteal: "#8B6F8B",
+        },
+      },
+      fontFamily: {
+        display: ["Fraunces", "serif"],
+        sans: ["Inter", "ui-sans-serif", "system-ui"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
+      },
+    },
   },
   plugins: [],
 }
