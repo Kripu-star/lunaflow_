@@ -21,7 +21,7 @@ const PERSONAS = {
     name: "Luna",
     emoji: "💜",
     description: "Supportive partner",
-    color: "purple",
+    color: "wine",
     greeting: "Hey, I'm here. Whatever you're feeling, you can tell me. How are you doing?",
   },
 };
@@ -30,7 +30,7 @@ const COLOR_STYLES = {
   blue: {
     button: "bg-blue-600 hover:bg-blue-700",
     bubble: "bg-blue-100 text-blue-900",
-    border: "border-blue-200",
+    avatar: "bg-blue-100",
     badge: "bg-blue-100 text-blue-700",
     active: "bg-blue-600 text-white",
     inactive: "bg-white text-blue-600 border border-blue-200",
@@ -38,18 +38,18 @@ const COLOR_STYLES = {
   green: {
     button: "bg-green-600 hover:bg-green-700",
     bubble: "bg-green-100 text-green-900",
-    border: "border-green-200",
+    avatar: "bg-green-100",
     badge: "bg-green-100 text-green-700",
     active: "bg-green-600 text-white",
     inactive: "bg-white text-green-600 border border-green-200",
   },
-  purple: {
-    button: "bg-purple-600 hover:bg-purple-700",
-    bubble: "bg-purple-100 text-purple-900",
-    border: "border-purple-200",
-    badge: "bg-purple-100 text-purple-700",
-    active: "bg-purple-600 text-white",
-    inactive: "bg-white text-purple-600 border border-purple-200",
+  wine: {
+    button: "bg-wine hover:bg-wine-dark",
+    bubble: "bg-rose-100 text-wine",
+    avatar: "bg-rose-100",
+    badge: "bg-rose-100 text-wine",
+    active: "bg-wine text-white",
+    inactive: "bg-white text-wine border border-rose-200",
   },
 };
 
@@ -81,7 +81,7 @@ useEffect(() => {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
-  
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -152,28 +152,34 @@ useEffect(() => {
   const colors = COLOR_STYLES[currentPersona.color];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
+    <div className="min-h-screen bg-rose-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white border-b border-rose-200">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <button
-            onClick={() => navigate("/")}
-            className="text-gray-500 hover:text-gray-700 text-sm"
+            onClick={() => navigate("/dashboard")}
+            className="text-ink/50 hover:text-wine text-sm"
           >
             ← Back
           </button>
+          <div className="flex items-center gap-2">
+            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg ${colors.avatar}`}>
+              {currentPersona.emoji}
+            </span>
+            <div>
+              <h1 className="font-display font-semibold text-ink text-sm leading-tight">
+                {currentPersona.name}
+              </h1>
+              <span className="text-xs text-ink/50">{currentPersona.description}</span>
+            </div>
+          </div>
           <button
-  onClick={clearHistory}
-  className="text-xs text-gray-400 hover:text-red-400 transition"
->
-  Clear history
-</button>
-          <h1 className="font-bold text-gray-800">
-            {currentPersona.emoji} {currentPersona.name}
-          </h1>
-          <span className={`text-xs px-2 py-1 rounded-full ${colors.badge}`}>
-            {currentPersona.description}
-          </span>
+            onClick={clearHistory}
+            title="Clear history"
+            className="text-ink/40 hover:text-wine transition text-lg"
+          >
+            ⚙
+          </button>
         </div>
       </header>
 
@@ -205,14 +211,14 @@ useEffect(() => {
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role !== "user" && (
-                <span className="text-2xl mr-2 self-end mb-1">
+                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg mr-2 self-end mb-1 ${colors.avatar}`}>
                   {currentPersona.emoji}
                 </span>
               )}
               <div
                 className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                   msg.role === "user"
-                    ? "bg-gray-800 text-white rounded-br-sm"
+                    ? "bg-wine text-rose-50 rounded-br-sm"
                     : `${colors.bubble} rounded-bl-sm`
                 }`}
               >
@@ -223,12 +229,14 @@ useEffect(() => {
 
           {loading && (
             <div className="flex justify-start">
-              <span className="text-2xl mr-2">{currentPersona.emoji}</span>
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg mr-2 ${colors.avatar}`}>
+                {currentPersona.emoji}
+              </span>
               <div className={`px-4 py-3 rounded-2xl rounded-bl-sm ${colors.bubble}`}>
                 <div className="flex gap-1 items-center h-4">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="w-2 h-2 bg-ink/30 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 bg-ink/30 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 bg-ink/30 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
               </div>
             </div>
@@ -238,7 +246,7 @@ useEffect(() => {
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-100 shadow-lg">
+      <div className="bg-white border-t border-rose-200 shadow-lg">
         <div className="max-w-2xl mx-auto px-4 py-3">
           <form onSubmit={sendMessage} className="flex gap-2">
             <input
@@ -247,7 +255,7 @@ useEffect(() => {
               onChange={(e) => setInput(e.target.value)}
               placeholder={`Talk to ${currentPersona.name}...`}
               disabled={loading}
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none text-sm disabled:opacity-50"
+              className="flex-1 px-4 py-2 border border-rose-200 rounded-full focus:ring-2 focus:ring-wine/30 focus:border-transparent outline-none text-sm disabled:opacity-50"
             />
             <button
               type="submit"
@@ -257,7 +265,7 @@ useEffect(() => {
               Send
             </button>
           </form>
-          <p className="text-xs text-gray-400 text-center mt-2">
+          <p className="text-xs text-ink/40 text-center mt-2">
             AI companion — not a substitute for real medical advice
           </p>
         </div>
@@ -265,5 +273,3 @@ useEffect(() => {
     </div>
   );
 }
-
-

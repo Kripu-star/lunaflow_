@@ -12,6 +12,8 @@ import {
   deleteCycle,
 } from "../api";
 import MoonPhaseRing from "../components/MoonPhaseRing";
+import TopHeader from "../components/TopHeader";
+import BottomNav from "../components/BottomNav";
 
 const MOOD_EMOJIS = ["😢", "😟", "😐", "😊", "😁"];
 const ENERGY_EMOJIS = ["🪫", "😴", "⚡", "🔥", "💥"];
@@ -40,7 +42,7 @@ export default function Dashboard() {
   const [energyLevel, setEnergyLevel] = useState(3);
   const [moodNote, setMoodNote] = useState("");
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("cycles");
+  const [view, setView] = useState("home");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -121,6 +123,14 @@ export default function Dashboard() {
     navigate("/login");
   }
 
+  function handleNavigate(key) {
+    if (key === "companion") {
+      navigate("/chat");
+      return;
+    }
+    setView(key);
+  }
+
   function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
@@ -136,7 +146,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-parchment flex items-center justify-center">
+      <div className="min-h-screen bg-rose-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-3xl mb-2">🌙</p>
           <p className="font-display text-ink/70">Loading your dashboard…</p>
@@ -145,171 +155,136 @@ export default function Dashboard() {
     );
   }
 
-  const phaseColor = PHASE_TEXT_COLOR[cyclePhase?.phase] || "text-aubergine";
+  const phaseColor = PHASE_TEXT_COLOR[cyclePhase?.phase] || "text-wine";
 
   return (
-    <div className="min-h-screen bg-parchment">
-      {/* Header */}
-      <header className="bg-white border-b border-ink/8">
-        <div className="max-w-3xl mx-auto px-5 py-4 flex justify-between items-center">
-          <h1 className="font-display text-xl font-semibold text-ink">
-            🌙 LunaFlow
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-ink/60 hidden sm:inline">
-              Hi, {user?.full_name || user?.email}
-            </span>
-            <button
-              onClick={() => navigate("/chat")}
-              className="text-sm bg-aubergine text-parchment px-3 py-1.5 rounded-full hover:bg-aubergine-dark transition"
-            >
-              💬 Companion
-            </button>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-ink/50 hover:text-[#B8493E] transition"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-rose-50 pb-20 sm:pb-0">
+      <TopHeader
+        active={view}
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={handleLogout}
+      />
 
       <main className="max-w-3xl mx-auto px-5 py-8 space-y-6">
-        {/* Hero: Moon Phase Ring */}
-          <div className="hero-glow rounded-2xl border border-ink/8 shadow-[0_2px_24px_rgba(74,37,69,0.08)] p-8 text-center">
-          <MoonPhaseRing
-            dayOfCycle={cyclePhase?.day_of_cycle}
-            cycleLength={prediction?.average_cycle_length_days}
-            phase={cyclePhase?.phase}
-            emoji={cyclePhase?.emoji}
-          />
-          {cyclePhase && cyclePhase.phase !== "unknown" && (
-            <div className="mt-5 max-w-md mx-auto">
-              <p className={`font-display text-lg font-semibold ${phaseColor}`}>
-                {cyclePhase.phase}
-              </p>
-              <p className="text-sm text-ink/60 mt-1">{cyclePhase.description}</p>
-              {cyclePhase.tips?.length > 0 && (
-                <div className="flex flex-wrap gap-2 justify-center mt-3">
-                  {cyclePhase.tips.slice(0, 3).map((tip, i) => (
-                    <span
-                      key={i}
-                      className="text-xs bg-parchment border border-ink/10 text-ink/70 px-2.5 py-1 rounded-full"
-                    >
-                      {tip}
-                    </span>
-                  ))}
+        {view === "home" && (
+          <>
+            <p className="font-display text-lg text-ink">
+              Hi, {user?.full_name || user?.email}
+            </p>
+
+            {/* Hero: Moon Phase Ring */}
+            <div className="hero-glow rounded-2xl border border-rose-200 shadow-[0_2px_24px_rgba(122,46,69,0.08)] p-8 text-center">
+              <MoonPhaseRing
+                dayOfCycle={cyclePhase?.day_of_cycle}
+                cycleLength={prediction?.average_cycle_length_days}
+                phase={cyclePhase?.phase}
+                emoji={cyclePhase?.emoji}
+              />
+              {cyclePhase && cyclePhase.phase !== "unknown" && (
+                <div className="mt-5 max-w-md mx-auto">
+                  <p className={`font-display text-lg font-semibold ${phaseColor}`}>
+                    {cyclePhase.phase}
+                  </p>
+                  <p className="text-sm text-ink/60 mt-1">{cyclePhase.description}</p>
+                  {cyclePhase.tips?.length > 0 && (
+                    <div className="flex flex-wrap gap-2 justify-center mt-3">
+                      {cyclePhase.tips.slice(0, 3).map((tip, i) => (
+                        <span
+                          key={i}
+                          className="text-xs bg-rose-50 border border-rose-200 text-ink/70 px-2.5 py-1 rounded-full"
+                        >
+                          {tip}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Secondary stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-ink/8 shadow-sm p-5">
-            <h2 className="text-xs font-semibold text-aubergine uppercase tracking-wide mb-2">
-              Next Period
-            </h2>
-            {prediction?.predicted_next_start ? (
-              <>
-                <p className="font-display text-xl font-semibold text-ink">
-                  {formatDate(prediction.predicted_next_start)}
-                </p>
-                <p className="text-sm text-ink/60 mt-1">
-                  {daysUntil(prediction.predicted_next_start)} days away · avg{" "}
-                  {prediction.average_cycle_length_days}d cycle
-                </p>
-                <span
-                  className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                    prediction.confidence === "high"
-                      ? "bg-[#6B8F71]/15 text-[#6B8F71]"
-                      : prediction.confidence === "medium"
-                      ? "bg-[#D4A24C]/15 text-[#D4A24C]"
-                      : "bg-ink/10 text-ink/50"
-                  }`}
-                >
-                  {prediction.confidence} confidence
-                </span>
-              </>
-            ) : (
-              <p className="text-sm text-ink/50">
-                Log at least 2 periods to see a prediction here.
-              </p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-2xl border border-ink/8 shadow-sm p-5">
-            <h2 className="text-xs font-semibold text-mauve uppercase tracking-wide mb-2">
-              Mood Overview
-            </h2>
-            {moodStats?.total_entries > 0 ? (
-              <>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">
-                    {MOOD_EMOJIS[Math.round(moodStats.average_mood) - 1]}
-                  </span>
-                  <div>
+            {/* Secondary stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-5">
+                <h2 className="text-xs font-semibold text-wine uppercase tracking-wide mb-2">
+                  Next Period
+                </h2>
+                {prediction?.predicted_next_start ? (
+                  <>
                     <p className="font-display text-xl font-semibold text-ink">
-                      {moodStats.average_mood}/5
+                      {formatDate(prediction.predicted_next_start)}
                     </p>
-                    <p className="text-xs text-ink/50">
-                      from {moodStats.total_entries} entries
+                    <p className="text-sm text-ink/60 mt-1">
+                      {daysUntil(prediction.predicted_next_start)} days away · avg{" "}
+                      {prediction.average_cycle_length_days}d cycle
                     </p>
-                  </div>
-                </div>
-                <span
-                  className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                    moodStats.recent_trend === "improving"
-                      ? "bg-[#6B8F71]/15 text-[#6B8F71]"
-                      : moodStats.recent_trend === "declining"
-                      ? "bg-[#B8493E]/15 text-[#B8493E]"
-                      : "bg-ink/10 text-ink/50"
-                  }`}
-                >
-                  {moodStats.recent_trend === "improving" && "↑ "}
-                  {moodStats.recent_trend === "declining" && "↓ "}
-                  {moodStats.recent_trend}
-                </span>
-              </>
-            ) : (
-              <p className="text-sm text-ink/50">No moods logged yet.</p>
-            )}
-          </div>
-        </div>
+                    <span
+                      className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                        prediction.confidence === "high"
+                          ? "bg-[#6B8F71]/15 text-[#6B8F71]"
+                          : prediction.confidence === "medium"
+                          ? "bg-[#D4A24C]/15 text-[#D4A24C]"
+                          : "bg-ink/10 text-ink/50"
+                      }`}
+                    >
+                      {prediction.confidence} confidence
+                    </span>
+                  </>
+                ) : (
+                  <p className="text-sm text-ink/50">
+                    Log at least 2 periods to see a prediction here.
+                  </p>
+                )}
+              </div>
 
-        {/* Tab Switcher */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveTab("cycles")}
-            className={`px-4 py-2 rounded-full font-medium text-sm transition ${
-              activeTab === "cycles"
-                ? "bg-aubergine text-parchment"
-                : "bg-white text-ink/60 border border-ink/10 hover:border-aubergine/40"
-            }`}
-          >
-            Period Tracker
-          </button>
-          <button
-            onClick={() => setActiveTab("moods")}
-            className={`px-4 py-2 rounded-full font-medium text-sm transition ${
-              activeTab === "moods"
-                ? "bg-mauve text-parchment"
-                : "bg-white text-ink/60 border border-ink/10 hover:border-mauve/40"
-            }`}
-          >
-            Mood Journal
-          </button>
-        </div>
+              <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-5">
+                <h2 className="text-xs font-semibold text-wine uppercase tracking-wide mb-2">
+                  Mood Overview
+                </h2>
+                {moodStats?.total_entries > 0 ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">
+                        {MOOD_EMOJIS[Math.round(moodStats.average_mood) - 1]}
+                      </span>
+                      <div>
+                        <p className="font-display text-xl font-semibold text-ink">
+                          {moodStats.average_mood}/5
+                        </p>
+                        <p className="text-xs text-ink/50">
+                          from {moodStats.total_entries} entries
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                        moodStats.recent_trend === "improving"
+                          ? "bg-[#6B8F71]/15 text-[#6B8F71]"
+                          : moodStats.recent_trend === "declining"
+                          ? "bg-[#B8493E]/15 text-[#B8493E]"
+                          : "bg-ink/10 text-ink/50"
+                      }`}
+                    >
+                      {moodStats.recent_trend === "improving" && "↑ "}
+                      {moodStats.recent_trend === "declining" && "↓ "}
+                      {moodStats.recent_trend}
+                    </span>
+                  </>
+                ) : (
+                  <p className="text-sm text-ink/50">No moods logged yet.</p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
 
-        {/* Cycles Tab */}
-        {activeTab === "cycles" && (
-          <div className="bg-white rounded-2xl border border-ink/8 shadow-sm p-6">
+        {/* Tracker view */}
+        {view === "tracker" && (
+          <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-6">
             {!showCycleForm ? (
               <button
                 onClick={() => setShowCycleForm(true)}
-                className="w-full py-3 border-2 border-dashed border-aubergine/30 rounded-xl text-aubergine hover:bg-aubergine/5 transition font-medium"
+                className="w-full py-3 border-2 border-dashed border-wine/30 rounded-xl text-wine hover:bg-wine/5 transition font-medium"
               >
                 + Log New Period
               </button>
@@ -327,7 +302,7 @@ export default function Dashboard() {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-ink/15 rounded-lg focus:ring-2 focus:ring-aubergine/30 outline-none bg-parchment"
+                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
                   />
                 </div>
                 <div>
@@ -337,7 +312,7 @@ export default function Dashboard() {
                   <select
                     value={periodLength}
                     onChange={(e) => setPeriodLength(Number(e.target.value))}
-                    className="w-full px-4 py-2 border border-ink/15 rounded-lg focus:ring-2 focus:ring-aubergine/30 outline-none bg-parchment"
+                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
                   >
                     <option value="">Not sure yet</option>
                     {[2, 3, 4, 5, 6, 7, 8].map((d) => (
@@ -358,14 +333,14 @@ export default function Dashboard() {
                     type="text"
                     value={cycleNotes}
                     onChange={(e) => setCycleNotes(e.target.value)}
-                    className="w-full px-4 py-2 border border-ink/15 rounded-lg focus:ring-2 focus:ring-aubergine/30 outline-none bg-parchment"
+                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
                     placeholder="e.g. heavy flow, cramps"
                   />
                 </div>
                 <div className="flex gap-3">
                   <button
                     type="submit"
-                    className="bg-aubergine text-parchment px-6 py-2 rounded-lg hover:bg-aubergine-dark transition"
+                    className="bg-wine text-rose-50 px-6 py-2 rounded-lg hover:bg-wine-dark transition"
                   >
                     Save
                   </button>
@@ -394,7 +369,7 @@ export default function Dashboard() {
                   {cycles.map((cycle) => (
                     <div
                       key={cycle.id}
-                      className="flex justify-between items-center p-3 bg-parchment rounded-lg"
+                      className="flex justify-between items-center p-3 bg-rose-50 rounded-lg"
                     >
                       <div>
                         <p className="font-medium text-ink text-sm">
@@ -421,13 +396,13 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Moods Tab */}
-        {activeTab === "moods" && (
-          <div className="bg-white rounded-2xl border border-ink/8 shadow-sm p-6">
+        {/* Journal view */}
+        {view === "journal" && (
+          <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-6">
             {!showMoodForm ? (
               <button
                 onClick={() => setShowMoodForm(true)}
-                className="w-full py-3 border-2 border-dashed border-mauve/40 rounded-xl text-mauve hover:bg-mauve/5 transition font-medium"
+                className="w-full py-3 border-2 border-dashed border-wine/40 rounded-xl text-wine hover:bg-wine/5 transition font-medium"
               >
                 + Log Today's Mood
               </button>
@@ -449,7 +424,7 @@ export default function Dashboard() {
                         onClick={() => setMoodScore(i + 1)}
                         className={`text-3xl p-2 rounded-lg transition ${
                           moodScore === i + 1
-                            ? "bg-mauve/15 scale-110"
+                            ? "bg-wine/15 scale-110"
                             : "hover:bg-ink/5"
                         }`}
                       >
@@ -471,7 +446,7 @@ export default function Dashboard() {
                         onClick={() => setEnergyLevel(i + 1)}
                         className={`text-3xl p-2 rounded-lg transition ${
                           energyLevel === i + 1
-                            ? "bg-mauve/15 scale-110"
+                            ? "bg-wine/15 scale-110"
                             : "hover:bg-ink/5"
                         }`}
                       >
@@ -489,7 +464,7 @@ export default function Dashboard() {
                     type="text"
                     value={moodNote}
                     onChange={(e) => setMoodNote(e.target.value)}
-                    className="w-full px-4 py-2 border border-ink/15 rounded-lg focus:ring-2 focus:ring-mauve/30 outline-none bg-parchment"
+                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
                     placeholder="What's on your mind?"
                   />
                 </div>
@@ -497,7 +472,7 @@ export default function Dashboard() {
                 <div className="flex gap-3">
                   <button
                     type="submit"
-                    className="bg-mauve text-parchment px-6 py-2 rounded-lg hover:bg-mauve-dark transition"
+                    className="bg-wine text-rose-50 px-6 py-2 rounded-lg hover:bg-wine-dark transition"
                   >
                     Save Mood
                   </button>
@@ -526,7 +501,7 @@ export default function Dashboard() {
                   {moods.map((mood) => (
                     <div
                       key={mood.id}
-                      className="flex items-center gap-3 p-3 bg-parchment rounded-lg"
+                      className="flex items-center gap-3 p-3 bg-rose-50 rounded-lg"
                     >
                       <span className="text-xl">
                         {MOOD_EMOJIS[mood.mood_score - 1]}
@@ -557,6 +532,8 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      <BottomNav active={view} onNavigate={handleNavigate} onLogout={handleLogout} />
     </div>
   );
 }

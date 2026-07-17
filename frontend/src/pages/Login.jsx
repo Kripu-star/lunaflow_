@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api";
+import Logo from "../components/Logo";
+import WaveBackground from "../components/WaveBackground";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +20,7 @@ export default function Login() {
     try {
       const res = await login(email, password);
       if (res.ok) {
-        navigate("/");
+        navigate("/dashboard");
       } else {
         const data = await res.json();
         setError(data.detail || "Login failed");
@@ -30,11 +33,18 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+    <div className="relative min-h-screen bg-rose-50 flex flex-col items-center justify-center p-4 overflow-hidden">
+      <Link
+        to="/"
+        className="absolute top-6 left-6 text-ink/50 hover:text-wine transition z-10"
+      >
+        ←
+      </Link>
+
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-purple-800">🌙 LunaFlow</h1>
-          <p className="text-gray-500 mt-2">Welcome back</p>
+          <Logo className="justify-center mb-2" />
+          <p className="text-ink/60 mt-2">Log in to continue your journey</p>
         </div>
 
         {error && (
@@ -45,7 +55,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-ink/70 mb-1">
               Email
             </label>
             <input
@@ -53,41 +63,53 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none"
+              className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 focus:border-transparent outline-none"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-ink/70 mb-1">
               Password
             </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 pr-10 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 focus:border-transparent outline-none"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink/40 hover:text-wine text-sm"
+                tabIndex={-1}
+              >
+                {showPassword ? "🙈" : "👁"}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50"
+            className="w-full bg-wine text-rose-50 py-2.5 rounded-full font-medium hover:bg-wine-dark transition disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-ink/50 mt-6">
           Don't have an account?{" "}
-          <Link to="/register" className="text-purple-600 hover:underline">
+          <Link to="/register" className="text-wine hover:underline">
             Sign up
           </Link>
         </p>
       </div>
+
+      <WaveBackground className="h-40" />
     </div>
   );
 }

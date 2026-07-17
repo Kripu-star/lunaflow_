@@ -14,7 +14,7 @@ body {
 .hero-glow {
   background: radial-gradient(
       circle at 50% 0%,
-      rgba(74, 37, 69, 0.10),
+      rgba(122, 46, 69, 0.10),
       transparent 65%
     ),
     #ffffff;

@@ -25,6 +25,17 @@ export default {
           ovulation: "#D4A24C",
           luteal: "#8B6F8B",
         },
+        rose: {
+          50: "#FDF2F5",
+          100: "#FCE4EA",
+          200: "#F6C6D0",
+          300: "#E8A0B4",
+        },
+        wine: {
+          light: "#9A4560",
+          DEFAULT: "#7A2E45",
+          dark: "#5E2136",
+        },
       },
       fontFamily: {
         display: ["Fraunces", "serif"],

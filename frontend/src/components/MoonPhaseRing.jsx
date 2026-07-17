@@ -4,7 +4,7 @@ const PHASE_COLORS = {
   Follicular: "#6B8F71",
   Ovulation: "#D4A24C",
   Luteal: "#8B6F8B",
-  unknown: "#4A2545",
+  unknown: "#7A2E45",
 };
 
 export default function MoonPhaseRing({ dayOfCycle, cycleLength, phase, emoji }) {
