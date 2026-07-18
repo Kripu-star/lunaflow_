@@ -14,6 +14,7 @@ import {
 import MoonPhaseRing from "../components/MoonPhaseRing";
 import TopHeader from "../components/TopHeader";
 import BottomNav from "../components/BottomNav";
+import { IconPlus, IconChevronDown, IconCalendar, IconTrash, IconDroplet } from "../components/icons";
 
 const MOOD_EMOJIS = ["😢", "😟", "😐", "😊", "😁"];
 const ENERGY_EMOJIS = ["🪫", "😴", "⚡", "🔥", "💥"];
@@ -278,80 +279,111 @@ export default function Dashboard() {
           </>
         )}
 
+        {/* Segmented switcher for Tracker/Journal */}
+        {(view === "tracker" || view === "journal") && (
+          <div className="flex bg-rose-100 rounded-full p-1">
+            <button
+              onClick={() => setView("tracker")}
+              className={`flex-1 py-2 rounded-full text-sm font-semibold transition ${
+                view === "tracker"
+                  ? "bg-white text-wine shadow-sm"
+                  : "text-ink/50"
+              }`}
+            >
+              Period Tracker
+            </button>
+            <button
+              onClick={() => setView("journal")}
+              className={`flex-1 py-2 rounded-full text-sm font-semibold transition ${
+                view === "journal"
+                  ? "bg-white text-wine shadow-sm"
+                  : "text-ink/50"
+              }`}
+            >
+              Mood Journal
+            </button>
+          </div>
+        )}
+
         {/* Tracker view */}
         {view === "tracker" && (
           <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-6">
-            {!showCycleForm ? (
-              <button
-                onClick={() => setShowCycleForm(true)}
-                className="w-full py-3 border-2 border-dashed border-wine/30 rounded-xl text-wine hover:bg-wine/5 transition font-medium"
-              >
-                + Log New Period
-              </button>
-            ) : (
-              <form onSubmit={handleLogCycle} className="space-y-4">
-                <h3 className="font-display font-semibold text-ink">
-                  Log a Period
-                </h3>
-                <div>
-                  <label className="block text-sm font-medium text-ink/70 mb-1">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
-                  />
+            <button
+              type="button"
+              onClick={() => setShowCycleForm((v) => !v)}
+              className="w-full flex items-center justify-between text-wine font-semibold"
+            >
+              <span className="flex items-center gap-2">
+                <IconPlus className="w-4 h-4" />
+                Log New Period
+              </span>
+              <IconChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  showCycleForm ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {showCycleForm && (
+              <form onSubmit={handleLogCycle} className="space-y-4 mt-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-ink/70 mb-1">
+                      Start Date
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        required
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-4 py-2 pr-10 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
+                      />
+                      <IconCalendar className="w-4 h-4 text-ink/40 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-ink/70 mb-1">
+                      Period Length
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={periodLength}
+                        onChange={(e) => setPeriodLength(Number(e.target.value))}
+                        className="w-full appearance-none px-4 py-2 pr-10 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
+                      >
+                        <option value="">Not sure yet</option>
+                        {[2, 3, 4, 5, 6, 7, 8].map((d) => (
+                          <option key={d} value={d}>
+                            {d} Days
+                          </option>
+                        ))}
+                      </select>
+                      <IconChevronDown className="w-4 h-4 text-ink/40 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-ink/70 mb-1">
-                    How many days did it last?
-                  </label>
-                  <select
-                    value={periodLength}
-                    onChange={(e) => setPeriodLength(Number(e.target.value))}
-                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
-                  >
-                    <option value="">Not sure yet</option>
-                    {[2, 3, 4, 5, 6, 7, 8].map((d) => (
-                      <option key={d} value={d}>
-                        {d} days
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-ink/40 mt-1">
-                    Periods must be at least 15 days apart.
-                  </p>
-                </div>
+                <p className="text-xs text-ink/40 -mt-2">
+                  Periods must be at least 15 days apart.
+                </p>
                 <div>
                   <label className="block text-sm font-medium text-ink/70 mb-1">
                     Notes (optional)
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={3}
                     value={cycleNotes}
                     onChange={(e) => setCycleNotes(e.target.value)}
-                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
-                    placeholder="e.g. heavy flow, cramps"
+                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50 resize-none"
+                    placeholder="Any symptoms, thoughts, or notes..."
                   />
                 </div>
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    className="bg-wine text-rose-50 px-6 py-2 rounded-lg hover:bg-wine-dark transition"
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowCycleForm(false)}
-                    className="text-ink/50 hover:underline"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-wine text-rose-50 py-3 rounded-full font-semibold hover:bg-wine-dark transition"
+                >
+                  Save
+                </button>
               </form>
             )}
 
@@ -369,24 +401,31 @@ export default function Dashboard() {
                   {cycles.map((cycle) => (
                     <div
                       key={cycle.id}
-                      className="flex justify-between items-center p-3 bg-rose-50 rounded-lg"
+                      className="flex justify-between items-center p-3.5 bg-rose-50 rounded-xl"
                     >
-                      <div>
-                        <p className="font-medium text-ink text-sm">
-                          {formatDate(cycle.start_date)}
-                        </p>
-                        <p className="text-xs text-ink/50">
-                          {cycle.period_length_days
-                            ? `${cycle.period_length_days} days · `
-                            : ""}
-                          {cycle.notes}
-                        </p>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 font-semibold text-ink text-sm">
+                            <IconDroplet className="w-3 h-3 text-[#B8493E]" />
+                            {formatDate(cycle.start_date)}
+                          </span>
+                          {cycle.period_length_days && (
+                            <span className="text-sm text-ink/60 mr-2">
+                              {cycle.period_length_days} Days
+                            </span>
+                          )}
+                        </div>
+                        {cycle.notes && (
+                          <p className="text-xs text-ink/50 mt-0.5 ml-5">
+                            {cycle.notes}
+                          </p>
+                        )}
                       </div>
                       <button
                         onClick={() => handleDeleteCycle(cycle.id)}
-                        className="text-xs text-ink/30 hover:text-[#B8493E] transition px-2"
+                        className="ml-2 w-8 h-8 flex items-center justify-center rounded-lg bg-[#B8493E]/10 text-[#B8493E] hover:bg-[#B8493E]/20 transition shrink-0"
                       >
-                        ✕
+                        <IconTrash className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
@@ -399,19 +438,24 @@ export default function Dashboard() {
         {/* Journal view */}
         {view === "journal" && (
           <div className="bg-white rounded-2xl border border-rose-200 shadow-sm p-6">
-            {!showMoodForm ? (
-              <button
-                onClick={() => setShowMoodForm(true)}
-                className="w-full py-3 border-2 border-dashed border-wine/40 rounded-xl text-wine hover:bg-wine/5 transition font-medium"
-              >
-                + Log Today's Mood
-              </button>
-            ) : (
-              <form onSubmit={handleLogMood} className="space-y-4">
-                <h3 className="font-display font-semibold text-ink">
-                  How are you feeling?
-                </h3>
+            <button
+              type="button"
+              onClick={() => setShowMoodForm((v) => !v)}
+              className="w-full flex items-center justify-between text-wine font-semibold"
+            >
+              <span className="flex items-center gap-2">
+                <IconPlus className="w-4 h-4" />
+                Log Today's Mood
+              </span>
+              <IconChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  showMoodForm ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
+            {showMoodForm && (
+              <form onSubmit={handleLogMood} className="space-y-4 mt-5">
                 <div>
                   <label className="block text-sm font-medium text-ink/70 mb-2">
                     Mood
@@ -460,30 +504,21 @@ export default function Dashboard() {
                   <label className="block text-sm font-medium text-ink/70 mb-1">
                     Note (optional)
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={3}
                     value={moodNote}
                     onChange={(e) => setMoodNote(e.target.value)}
-                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
+                    className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50 resize-none"
                     placeholder="What's on your mind?"
                   />
                 </div>
 
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    className="bg-wine text-rose-50 px-6 py-2 rounded-lg hover:bg-wine-dark transition"
-                  >
-                    Save Mood
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowMoodForm(false)}
-                    className="text-ink/50 hover:underline"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-wine text-rose-50 py-3 rounded-full font-semibold hover:bg-wine-dark transition"
+                >
+                  Save Mood
+                </button>
               </form>
             )}
 
@@ -501,7 +536,7 @@ export default function Dashboard() {
                   {moods.map((mood) => (
                     <div
                       key={mood.id}
-                      className="flex items-center gap-3 p-3 bg-rose-50 rounded-lg"
+                      className="flex items-center gap-3 p-3.5 bg-rose-50 rounded-xl"
                     >
                       <span className="text-xl">
                         {MOOD_EMOJIS[mood.mood_score - 1]}

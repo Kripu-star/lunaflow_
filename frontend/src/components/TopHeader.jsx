@@ -1,11 +1,12 @@
 import { useState } from "react";
 import Logo from "./Logo";
+import { IconBell } from "./icons";
 
 const NAV_ITEMS = [
   { key: "home", label: "Home" },
-  { key: "tracker", label: "Tracker" },
-  { key: "journal", label: "Journal" },
-  { key: "companion", label: "Companion" },
+  { key: "tracker", label: "Period Tracker" },
+  { key: "journal", label: "Mood Journal" },
+  { key: "companion", label: "AI Companion" },
 ];
 
 export default function TopHeader({ active, onNavigate, user, onLogout }) {
@@ -22,7 +23,7 @@ export default function TopHeader({ active, onNavigate, user, onLogout }) {
             <button
               key={item.key}
               onClick={() => onNavigate(item.key)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap ${
                 active === item.key
                   ? "bg-wine text-rose-50"
                   : "text-ink/60 hover:bg-rose-50"
@@ -38,12 +39,12 @@ export default function TopHeader({ active, onNavigate, user, onLogout }) {
             title="Notifications (coming soon)"
             className="w-9 h-9 rounded-full flex items-center justify-center text-ink/50 hover:bg-rose-50 transition"
           >
-            🔔
+            <IconBell />
           </button>
           <div className="relative">
             <button
               onClick={() => setShowMenu((v) => !v)}
-              className="w-9 h-9 rounded-full bg-wine text-rose-50 flex items-center justify-center font-display font-semibold text-sm"
+              className="w-9 h-9 rounded-full bg-wine text-rose-50 flex items-center justify-center font-display font-semibold text-sm ring-2 ring-rose-200"
             >
               {initial}
             </button>
