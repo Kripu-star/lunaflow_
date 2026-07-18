@@ -13,13 +13,13 @@ const PERSONAS = {
     greeting: "Hello! I'm Dr. Luna, your women's health companion. How can I help you today?",
   },
   parent: {
-    label: "Guardian",
+    label: "Family",
     avatar: avatarGuardian,
     color: "olive",
     greeting: "Hi sweetheart! I'm here for you. What's on your mind today?",
   },
   partner: {
-    label: "Love",
+    label: "Friend",
     avatar: avatarLove,
     color: "purple",
     greeting: "Hey, I'm here. Whatever you're feeling, you can tell me. How are you doing?",

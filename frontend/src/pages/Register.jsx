@@ -119,7 +119,16 @@ export default function Register() {
               onChange={(e) => setAgreed(e.target.checked)}
               className="mt-0.5 accent-wine"
             />
-            I agree to the Terms & Privacy Policy
+            I agree to the{" "}
+            <Link
+              to="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-wine underline hover:no-underline"
+            >
+              Terms & Privacy Policy
+            </Link>
           </label>
 
           <button
