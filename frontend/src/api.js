@@ -93,3 +93,9 @@ export async function deleteCycle(cycleId) {
     method: "DELETE",
   });
 }
+
+export async function deleteMood(moodId) {
+  return apiCall(`/moods/${moodId}`, {
+    method: "DELETE",
+  });
+}

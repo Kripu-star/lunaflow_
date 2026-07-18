@@ -10,11 +10,12 @@ import {
   getMoodStats,
   getCyclePhase,
   deleteCycle,
+  deleteMood,
 } from "../api";
 import MoonPhaseRing from "../components/MoonPhaseRing";
 import TopHeader from "../components/TopHeader";
 import BottomNav from "../components/BottomNav";
-import { IconPlus, IconChevronDown, IconCalendar, IconTrash, IconDroplet } from "../components/icons";
+import { IconPlus, IconChevronDown, IconTrash, IconDroplet } from "../components/icons";
 
 const MOOD_EMOJIS = ["😢", "😟", "😐", "😊", "😁"];
 const ENERGY_EMOJIS = ["🪫", "😴", "⚡", "🔥", "💥"];
@@ -116,6 +117,20 @@ export default function Dashboard() {
     const res = await deleteCycle(cycleId);
     if (res && (res.ok || res.status === 204)) {
       loadData();
+    } else if (res) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.detail || "Could not delete this period entry.");
+    }
+  }
+
+  async function handleDeleteMood(moodId) {
+    if (!window.confirm("Delete this mood entry?")) return;
+    const res = await deleteMood(moodId);
+    if (res && (res.ok || res.status === 204)) {
+      loadData();
+    } else if (res) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.detail || "Could not delete this mood entry.");
     }
   }
 
@@ -331,16 +346,14 @@ export default function Dashboard() {
                     <label className="block text-sm font-medium text-ink/70 mb-1">
                       Start Date
                     </label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        required
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-4 py-2 pr-10 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
-                      />
-                      <IconCalendar className="w-4 h-4 text-ink/40 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
+                    <input
+                      type="date"
+                      required
+                      max={new Date().toISOString().split("T")[0]}
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-4 py-2 border border-rose-200 rounded-lg focus:ring-2 focus:ring-wine/30 outline-none bg-rose-50"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-ink/70 mb-1">
@@ -559,6 +572,12 @@ export default function Dashboard() {
                       <span className="text-xs text-ink/30 font-mono">
                         {formatDate(mood.logged_at)}
                       </span>
+                      <button
+                        onClick={() => handleDeleteMood(mood.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-[#B8493E]/10 text-[#B8493E] hover:bg-[#B8493E]/20 transition shrink-0"
+                      >
+                        <IconTrash className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>

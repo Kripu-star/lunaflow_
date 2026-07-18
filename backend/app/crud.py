@@ -337,7 +337,19 @@ def delete_cycle(db: Session, cycle_id: int, user_id : int):
        Cycle.user_id == user_id
     ).first()
     if not cycle:
-        raise ValueError("Cycle not founf")
+        raise ValueError("Cycle not found")
     db.delete(cycle)
+    db.commit()
+    return True
+
+
+def delete_mood(db: Session, mood_id: int, user_id: int):
+    mood = db.query(Mood).filter(
+        Mood.id == mood_id,
+        Mood.user_id == user_id
+    ).first()
+    if not mood:
+        raise ValueError("Mood not found")
+    db.delete(mood)
     db.commit()
     return True

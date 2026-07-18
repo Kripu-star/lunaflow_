@@ -4,6 +4,7 @@ import { apiCall } from "../api";
 import avatarDoctor from "../assets/avatar-doctor.png";
 import avatarGuardian from "../assets/avatar-guardian.png";
 import avatarLove from "../assets/avatar-love.png";
+import { IconTrash } from "../components/icons";
 
 const PERSONAS = {
   doctor: {
@@ -131,6 +132,7 @@ useEffect(() => {
     }
   }
  function clearHistory() {
+  if (!window.confirm("Clear all chat history with every companion?")) return;
   const fresh = {
     doctor: [{ role: "model", content: PERSONAS.doctor.greeting }],
     parent: [{ role: "model", content: PERSONAS.parent.greeting }],
@@ -171,10 +173,11 @@ useEffect(() => {
           </div>
           <button
             onClick={clearHistory}
-            title="Clear history"
-            className="text-ink/40 hover:text-wine transition text-lg"
+            title="Clear chat history"
+            className="flex items-center gap-1 text-xs font-medium text-ink/40 hover:text-[#B8493E] transition"
           >
-            ⚙
+            <IconTrash className="w-4 h-4" />
+            Clear
           </button>
         </div>
       </header>
