@@ -1,55 +1,52 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { apiCall } from "../api";
+import avatarDoctor from "../assets/avatar-doctor.png";
+import avatarGuardian from "../assets/avatar-guardian.png";
+import avatarLove from "../assets/avatar-love.png";
 
 const PERSONAS = {
   doctor: {
-    name: "Dr. Luna",
-    emoji: "👩‍⚕️",
-    description: "Women's health physician",
+    label: "Dr.",
+    avatar: avatarDoctor,
     color: "blue",
     greeting: "Hello! I'm Dr. Luna, your women's health companion. How can I help you today?",
   },
   parent: {
-    name: "Mama Luna",
-    emoji: "🤱",
-    description: "Nurturing parent figure",
-    color: "green",
+    label: "Guardian",
+    avatar: avatarGuardian,
+    color: "olive",
     greeting: "Hi sweetheart! I'm here for you. What's on your mind today?",
   },
   partner: {
-    name: "Luna",
-    emoji: "💜",
-    description: "Supportive partner",
-    color: "wine",
+    label: "Love",
+    avatar: avatarLove,
+    color: "purple",
     greeting: "Hey, I'm here. Whatever you're feeling, you can tell me. How are you doing?",
   },
 };
 
 const COLOR_STYLES = {
   blue: {
-    button: "bg-blue-600 hover:bg-blue-700",
-    bubble: "bg-blue-100 text-blue-900",
-    avatar: "bg-blue-100",
-    badge: "bg-blue-100 text-blue-700",
-    active: "bg-blue-600 text-white",
-    inactive: "bg-white text-blue-600 border border-blue-200",
+    button: "bg-[#5B6FA8] hover:bg-[#4A5D9E]",
+    bubble: "bg-[#E3E9FB] text-[#3A4A80]",
+    ring: "ring-[#B9C6ED]",
+    active: "bg-[#5B6FA8] text-white",
+    inactive: "bg-white text-[#5B6FA8] border border-[#B9C6ED]",
   },
-  green: {
-    button: "bg-green-600 hover:bg-green-700",
-    bubble: "bg-green-100 text-green-900",
-    avatar: "bg-green-100",
-    badge: "bg-green-100 text-green-700",
-    active: "bg-green-600 text-white",
-    inactive: "bg-white text-green-600 border border-green-200",
+  olive: {
+    button: "bg-[#6F8049] hover:bg-[#5B6B34]",
+    bubble: "bg-[#EAF0DD] text-[#4B5A2A]",
+    ring: "ring-[#C7D6AE]",
+    active: "bg-[#6F8049] text-white",
+    inactive: "bg-white text-[#6F8049] border border-[#C7D6AE]",
   },
-  wine: {
-    button: "bg-wine hover:bg-wine-dark",
-    bubble: "bg-rose-100 text-wine",
-    avatar: "bg-rose-100",
-    badge: "bg-rose-100 text-wine",
-    active: "bg-wine text-white",
-    inactive: "bg-white text-wine border border-rose-200",
+  purple: {
+    button: "bg-[#7C4FA3] hover:bg-[#6B3E90]",
+    bubble: "bg-[#F0E6F8] text-[#5B3A7A]",
+    ring: "ring-[#CBB0E3]",
+    active: "bg-[#7C4FA3] text-white",
+    inactive: "bg-white text-[#7C4FA3] border border-[#CBB0E3]",
   },
 };
 
@@ -152,7 +149,7 @@ useEffect(() => {
   const colors = COLOR_STYLES[currentPersona.color];
 
   return (
-    <div className="min-h-screen bg-rose-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-rose-100 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-rose-200">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -163,15 +160,14 @@ useEffect(() => {
             ← Back
           </button>
           <div className="flex items-center gap-2">
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg ${colors.avatar}`}>
-              {currentPersona.emoji}
-            </span>
-            <div>
-              <h1 className="font-display font-semibold text-ink text-sm leading-tight">
-                {currentPersona.name}
-              </h1>
-              <span className="text-xs text-ink/50">{currentPersona.description}</span>
-            </div>
+            <img
+              src={currentPersona.avatar}
+              alt={currentPersona.label}
+              className={`w-9 h-9 rounded-full object-cover ring-2 ${colors.ring}`}
+            />
+            <h1 className="font-display font-semibold text-ink text-sm leading-tight">
+              {currentPersona.label}
+            </h1>
           </div>
           <button
             onClick={clearHistory}
@@ -190,13 +186,18 @@ useEffect(() => {
             <button
               key={key}
               onClick={() => switchPersona(key)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+              className={`flex items-center gap-1.5 pl-1.5 pr-3 py-1 rounded-full text-sm font-medium transition ${
                 persona === key
                   ? COLOR_STYLES[p.color].active
                   : COLOR_STYLES[p.color].inactive
               }`}
             >
-              {p.emoji} {p.name}
+              <img
+                src={p.avatar}
+                alt=""
+                className="w-6 h-6 rounded-full object-cover"
+              />
+              {p.label}
             </button>
           ))}
         </div>
@@ -211,9 +212,11 @@ useEffect(() => {
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role !== "user" && (
-                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg mr-2 self-end mb-1 ${colors.avatar}`}>
-                  {currentPersona.emoji}
-                </span>
+                <img
+                  src={currentPersona.avatar}
+                  alt=""
+                  className="w-8 h-8 rounded-full object-cover mr-2 self-end mb-1"
+                />
               )}
               <div
                 className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl text-sm leading-relaxed ${
@@ -229,9 +232,11 @@ useEffect(() => {
 
           {loading && (
             <div className="flex justify-start">
-              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg mr-2 ${colors.avatar}`}>
-                {currentPersona.emoji}
-              </span>
+              <img
+                src={currentPersona.avatar}
+                alt=""
+                className="w-8 h-8 rounded-full object-cover mr-2"
+              />
               <div className={`px-4 py-3 rounded-2xl rounded-bl-sm ${colors.bubble}`}>
                 <div className="flex gap-1 items-center h-4">
                   <div className="w-2 h-2 bg-ink/30 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -253,7 +258,7 @@ useEffect(() => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Talk to ${currentPersona.name}...`}
+              placeholder={`Talk to ${currentPersona.label}...`}
               disabled={loading}
               className="flex-1 px-4 py-2 border border-rose-200 rounded-full focus:ring-2 focus:ring-wine/30 focus:border-transparent outline-none text-sm disabled:opacity-50"
             />
