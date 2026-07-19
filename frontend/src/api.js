@@ -45,6 +45,17 @@ export async function login(email, password) {
   return res;
 }
 
+export async function verifyEmail(token) {
+  return apiCall(`/auth/verify-email?token=${encodeURIComponent(token)}`);
+}
+
+export async function resendVerification(email) {
+  return apiCall("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function getMe() {
   return apiCall("/auth/me");
 }

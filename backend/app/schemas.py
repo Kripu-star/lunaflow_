@@ -18,6 +18,10 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+
 
 # --- Response schemas (what we send back) ---
 
@@ -112,6 +116,7 @@ class UserResponse(BaseModel):
     full_name: Optional[str]
     typical_cycle_length: Optional[int]
     is_active: bool
+    is_verified: bool
     created_at: datetime
 
     class Config:

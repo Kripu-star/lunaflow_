@@ -1,14 +1,17 @@
+import secrets
 from sqlalchemy.orm import Session
 from app.models import User
 from app.schemas import UserCreate
 from app.auth import hash_password
 from typing import List, cast
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from app.models import Cycle
 from app.schemas import CycleCreate
 from app.models import Mood
 from app.schemas import MoodCreate
 from sqlalchemy import func
+
+VERIFICATION_TOKEN_TTL_HOURS = 24
 
 
 def get_user_by_email(db: Session, email: str):
@@ -22,17 +25,58 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def create_user(db: Session, user: UserCreate):
-    """Create a new user with a hashed password."""
+    """Create a new user with a hashed password and an email verification token."""
     hashed = hash_password(user.password)
+    token = secrets.token_urlsafe(32)
     db_user = User(
         email=user.email,
         hashed_password=hashed,
-        full_name=user.full_name
+        full_name=user.full_name,
+        verification_token=token,
+        verification_token_expires_at=datetime.now(timezone.utc) + timedelta(hours=VERIFICATION_TOKEN_TTL_HOURS),
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def verify_user_email(db: Session, token: str):
+    """Mark a user's email as verified given a valid, unexpired token."""
+    user = db.query(User).filter(User.verification_token == token).first()
+    if not user:
+        raise ValueError("Invalid or already-used verification link")
+
+    expires_at = user.verification_token_expires_at
+    if expires_at is not None and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at is None or expires_at < datetime.now(timezone.utc):
+        raise ValueError("This verification link has expired")
+
+    user.is_verified = True
+    user.verification_token = None
+    user.verification_token_expires_at = None
+    db.commit()
+    return user
+
+
+def regenerate_verification_token(db: Session, email: str):
+    """
+    Issue a fresh verification token for an existing, unverified user.
+    Returns None (no-op) if the email doesn't exist or is already verified,
+    so callers can always return a generic response without leaking which
+    emails are registered.
+    """
+    user = db.query(User).filter(User.email == email).first()
+    if not user or user.is_verified:
+        return None
+
+    token = secrets.token_urlsafe(32)
+    user.verification_token = token
+    user.verification_token_expires_at = datetime.now(timezone.utc) + timedelta(hours=VERIFICATION_TOKEN_TTL_HOURS)
+    db.commit()
+    db.refresh(user)
+    return user
 
 def create_cycle(db: Session, cycle: CycleCreate, user_id: int):
     from datetime import datetime, timedelta

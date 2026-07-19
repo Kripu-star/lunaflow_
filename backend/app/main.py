@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db, engine
 from app import models
 from app import crud
-from app.schemas import UserCreate, UserResponse, UserLogin, Token
+from app.schemas import UserCreate, UserResponse, UserLogin, Token, ResendVerificationRequest
+from app.email_utils import send_verification_email
 from app.auth import verify_password, create_access_token, get_current_user
 from typing import List
 from app.schemas import CycleCreate, CycleResponse, CyclePrediction, MoodCreate, MoodResponse, MoodStats
@@ -16,6 +17,15 @@ from app.schemas import UserUpdate
 import os
 # Create all tables in the database on startup
 models.Base.metadata.create_all(bind=engine)
+
+# Idempotent column migration (no Alembic in this project) — safe to run
+# on every startup, ADD COLUMN IF NOT EXISTS is a no-op once applied.
+with engine.connect() as conn:
+    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT FALSE"))
+    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR"))
+    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token_expires_at TIMESTAMPTZ"))
+    conn.commit()
+
 engine.dispose()
 
 app = FastAPI(title="LunaFlow API")
@@ -51,7 +61,13 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
             status_code=400,
             detail="Email already registered"
         )
-    return crud.create_user(db=db, user=user)
+    db_user = crud.create_user(db=db, user=user)
+    try:
+        send_verification_email(db_user.email, db_user.full_name, db_user.verification_token)
+    except Exception as e:
+        # Don't fail signup if the email provider is down — user can resend later.
+        print(f"Failed to send verification email to {db_user.email}: {e}")
+    return db_user
 
 
 @app.post("/auth/login", response_model=Token)
@@ -62,8 +78,33 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
         )
+    if not db_user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before logging in."
+        )
     token = create_access_token(data={"sub": db_user.email})
     return {"access_token": token, "token_type": "bearer"}
+
+
+@app.get("/auth/verify-email")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    try:
+        crud.verify_user_email(db=db, token=token)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"message": "Email verified"}
+
+
+@app.post("/auth/resend-verification")
+def resend_verification(body: ResendVerificationRequest, db: Session = Depends(get_db)):
+    user = crud.regenerate_verification_token(db=db, email=body.email)
+    if user:
+        try:
+            send_verification_email(user.email, user.full_name, user.verification_token)
+        except Exception as e:
+            print(f"Failed to resend verification email to {user.email}: {e}")
+    return {"message": "If that email is registered and unverified, a new link has been sent."}
 
 
 @app.get("/auth/me", response_model=UserResponse)

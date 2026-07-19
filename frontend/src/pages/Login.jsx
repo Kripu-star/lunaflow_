@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../api";
+import { login, resendVerification } from "../api";
 import Logo from "../components/Logo";
 import WaveBackground from "../components/WaveBackground";
 
@@ -9,12 +9,16 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resendState, setResendState] = useState("idle"); // idle | sending | sent
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setNeedsVerification(false);
+    setResendState("idle");
     setLoading(true);
 
     try {
@@ -24,11 +28,25 @@ export default function Login() {
       } else {
         const data = await res.json();
         setError(data.detail || "Login failed");
+        if (res.status === 403) {
+          setNeedsVerification(true);
+        }
       }
     } catch {
       setError("Network error");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setResendState("sending");
+    try {
+      await resendVerification(email);
+    } catch {
+      // Endpoint always returns a generic success message, ignore network hiccups here
+    } finally {
+      setResendState("sent");
     }
   }
 
@@ -50,6 +68,20 @@ export default function Login() {
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
             {error}
+            {needsVerification && (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendState !== "idle"}
+                className="block mt-2 text-wine underline hover:no-underline disabled:opacity-50"
+              >
+                {resendState === "sending"
+                  ? "Sending..."
+                  : resendState === "sent"
+                  ? "Email sent — check your inbox"
+                  : "Resend verification email"}
+              </button>
+            )}
           </div>
         )}
 

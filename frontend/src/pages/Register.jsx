@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { register } from "../api";
+import { Link } from "react-router-dom";
+import { register, resendVerification } from "../api";
 import Logo from "../components/Logo";
 import WaveBackground from "../components/WaveBackground";
 
@@ -12,7 +12,8 @@ export default function Register() {
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [registered, setRegistered] = useState(false);
+  const [resendState, setResendState] = useState("idle"); // idle | sending | sent
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -27,7 +28,7 @@ export default function Register() {
     try {
       const res = await register(email, password, fullName);
       if (res.ok) {
-        navigate("/login");
+        setRegistered(true);
       } else {
         const data = await res.json();
         setError(data.detail || "Registration failed");
@@ -37,6 +38,54 @@ export default function Register() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleResend() {
+    setResendState("sending");
+    try {
+      await resendVerification(email);
+    } catch {
+      // Endpoint always returns a generic success message, ignore network hiccups here
+    } finally {
+      setResendState("sent");
+    }
+  }
+
+  if (registered) {
+    return (
+      <div className="relative min-h-screen bg-rose-50 flex flex-col items-center justify-center p-4 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md relative z-10 text-center">
+          <Logo className="justify-center mb-4" />
+          <p className="text-4xl mb-3">📬</p>
+          <h1 className="font-display text-xl font-semibold text-ink mb-2">
+            Check your email
+          </h1>
+          <p className="text-ink/60 text-sm mb-6">
+            We sent a verification link to <strong>{email}</strong>. Click it
+            to activate your account, then come back and log in.
+          </p>
+
+          <button
+            onClick={handleResend}
+            disabled={resendState !== "idle"}
+            className="w-full border border-wine text-wine py-2.5 rounded-full font-medium hover:bg-rose-50 transition disabled:opacity-50"
+          >
+            {resendState === "sending"
+              ? "Sending..."
+              : resendState === "sent"
+              ? "Email sent — check your inbox"
+              : "Resend email"}
+          </button>
+
+          <p className="text-center text-sm text-ink/50 mt-6">
+            <Link to="/login" className="text-wine hover:underline">
+              Back to Log In
+            </Link>
+          </p>
+        </div>
+        <WaveBackground className="h-40" />
+      </div>
+    );
   }
 
   return (

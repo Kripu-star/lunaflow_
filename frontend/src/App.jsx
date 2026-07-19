@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Chats from "./pages/Chats";
 import Terms from "./pages/Terms";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
         <Route
           path="/dashboard"
