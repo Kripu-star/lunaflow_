@@ -60,9 +60,12 @@ export default function Register() {
           <h1 className="font-display text-xl font-semibold text-ink mb-2">
             Check your email
           </h1>
-          <p className="text-ink/60 text-sm mb-6">
+          <p className="text-ink/60 text-sm mb-1">
             We sent a verification link to <strong>{email}</strong>. Click it
             to activate your account, then come back and log in.
+          </p>
+          <p className="text-ink/40 text-xs mb-6">
+            Don't see it? Check your spam or junk folder.
           </p>
 
           <button
