@@ -14,8 +14,7 @@ LunaFlow helps users:
 - **Log menstrual cycles** and track patterns over time
 - **Predict next period dates** using cycle history analysis
 - **Journal moods** with AI-powered emotion detection 
-- **Chat with AI companions** — Doctor, Partner, or Parent persona (Phase 2)
-- **Receive personalized recommendations** for food, yoga & schedule (Phase 3)
+- **Chat with AI companions** — Doctor, Partner, or Parent persona 
 
 ---
 
@@ -55,27 +54,9 @@ lunaflow/
 
 ---
 
-## 🚀 Current Status
 
-### ✅ Phase 1 — Completed
-- [x] FastAPI backend skeleton with `/health` endpoint
-- [x] PostgreSQL connection with SQLAlchemy (connection pooling, 
-      session management)
-- [x] Environment-based configuration (12-Factor App principles)
-- [x] User authentication (JWT)
-- [x] Period logging endpoints
-- [x] Cycle prediction algorithm
-- [x] React frontend
 
-### 🔜 Phase 2 — Under progress
-- [x] Mood journaling with HuggingFace emotion detection
-- [ ] AI companion personas via Claude API
 
-### 🔜 Phase 3 — Planned
-- [ ] Food, yoga & schedule recommendations
-- [ ] Stress-based cycle delay detection
-
----
 
 ## 🛠️ Local Setup
 
