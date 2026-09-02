@@ -45,11 +45,11 @@ lunaflow/
 │   ├── app/
 │   │   ├── main.py          # FastAPI routes
 │   │   ├── database.py      # SQLAlchemy engine + session management
-│   │   ├── models.py        # ORM table definitions (in progress)
+│   │   ├── models.py        # ORM table definitions 
 │   │   ├── schemas.py       # Pydantic request/response schemas
 │   │   └── crud.py          # Database operations
 │   └── requirements.txt
-└── frontend/                # React app (in progress)
+└── frontend/                # React application
 ```
 
 ---
@@ -100,10 +100,8 @@ The Engine manages a connection pool (expensive TCP connections,
 created once). Sessions are lightweight per-request wrappers 
 that borrow a connection briefly. This is standard connection 
 pooling architecture.
-
-**Why FastAPI over Flask or Django?**  
-Flask requires manual validation and docs. Django is too heavy 
-for an API-only backend. FastAPI gives Pydantic validation, 
+  
+- **FastAPI** — chosen for automatic OpenAPI docs, Pydantic validation, and native async support
 auto OpenAPI docs, and async support out of the box.
 
 ---
