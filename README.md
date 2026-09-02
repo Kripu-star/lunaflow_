@@ -3,7 +3,7 @@
 > A full-stack menstrual health & mood wellness web application — 
 > built to help women track cycles, understand patterns, and feel supported.
 
-![Status](https://img.shields.io/badge/Status-In%20Development-purple)
+![Status](https://img.shields.io/badge/Status-Completed-purple)
 ![Stack](https://img.shields.io/badge/Stack-React%20%7C%20FastAPI%20%7C%20PostgreSQL-blue)
 
 ---
